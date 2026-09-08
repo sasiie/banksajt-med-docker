@@ -6,7 +6,9 @@
   "scripts": {
     "test": "playwright test",
     "test:backend": "playwright test backend.spec.js",
-    "test:frontend": "playwright test frontend.spec.js"
+    "test:frontend": "playwright test frontend.spec.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1"
