@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
+
 export default function AccountPage() {
   const [amount, setAmount] = useState<number | null>(null);
   const [deposit, setDeposit] = useState("");
@@ -14,7 +16,7 @@ export default function AccountPage() {
       setMessage("Du är inte inloggad");
       return;
     }
-    const response = await fetch("http://127.0.0.1:3001/me/accounts", {
+    const response = await fetch(`${API_URL}/me/accounts`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -36,19 +38,16 @@ export default function AccountPage() {
       setMessage("du är inte inloggad");
       return;
     }
-    const response = await fetch(
-      "http://127.0.0.1:3001/me/accounts/transactions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token,
-          amount: Number(deposit),
-        }),
+    const response = await fetch(`${API_URL}/me/accounts/transactions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        token,
+        amount: Number(deposit),
+      }),
+    });
 
     const data = await response.json();
     if (response.ok) {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -11,7 +12,7 @@ export default function RegisterPage() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const response = await fetch("http://127.0.0.1:3001/users", {
+    const response = await fetch(`${API_URL}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
