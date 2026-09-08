@@ -1,26 +1,198 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f7fa;
+  --foreground: #1a1a1a;
+  --primary: #1e3a5f;
+  --primary-hover: #152c49;
+  --card: #ffffff;
+  --border: #e2e8f0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  min-height: 100vh;
+}
+
+/* Navigation */
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 30px;
+  padding: 22px 8%;
+  background: white;
+  border-bottom: 1px solid var(--border);
+}
+
+nav a {
+  color: #334155;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+nav a:hover {
+  color: var(--primary);
+}
+
+/* Rubriker */
+
+h1 {
+  color: var(--primary);
+}
+
+/* Hero */
+
+section {
+  max-width: 900px;
+  margin: auto;
+  padding: 140px 30px;
+  text-align: center;
+}
+
+section h1 {
+  margin: 0 0 20px;
+  font-size: clamp(42px, 6vw, 68px);
+  line-height: 1.05;
+}
+
+section p {
+  max-width: 600px;
+  margin: 0 auto 32px;
+  color: #64748b;
+  font-size: 19px;
+  line-height: 1.7;
+}
+
+section a {
+  display: inline-block;
+  padding: 14px 24px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+section a:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+/* Register, login och konto */
+
+main > h1 {
+  max-width: 500px;
+  margin: 70px auto 25px;
+  padding: 0 20px;
+  font-size: 36px;
+}
+
+main > form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+form div {
+  margin-bottom: 22px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  color: #1a1a1a;
+  font-size: 16px;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
+}
+
+button {
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+/* Saldo och meddelanden */
+
+main > p {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 18px 20px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+/* Mobil */
+
+@media (max-width: 600px) {
+  nav {
+    justify-content: center;
+    gap: 16px;
+    padding: 18px;
+    flex-wrap: wrap;
+  }
+
+  section {
+    padding: 90px 20px;
+  }
+
+  section h1 {
+    font-size: 42px;
+  }
+
+  main > form {
+    margin: 0 20px;
+    padding: 24px;
+  }
+
+  main > h1,
+  main > p {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
 }
