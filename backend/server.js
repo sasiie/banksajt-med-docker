@@ -1,59 +1,64 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Middleware
+const adapter = new PrismaBetterSqlite3({
+  url: "file:./dev.db",
+});
+
+const prisma = new PrismaClient({ adapter });
+
 app.use(cors());
 app.use(bodyParser.json());
 
-// Generera engångslösenord
 function generateOTP() {
-  // Generera en sexsiffrig numerisk OTP
   const otp = Math.floor(100000 + Math.random() * 900000);
   return otp.toString();
 }
 
-// Din kod här. Skriv dina arrayer
-const users = [];
-const accounts = [];
-const sessions = [];
-
-// Din kod här. Skriv dina routes:
-app.post("/users", (req, res) => {
+app.post("/users", async (req, res) => {
   const { username, password } = req.body;
 
-  const user = {
-    id: users.length + 101,
-    username,
-    password,
-  };
+  try {
+    const user = await prisma.user.create({
+      data: {
+        username,
+        password,
+        account: {
+          create: {
+            amount: 0,
+          },
+        },
+      },
+    });
 
-  users.push(user);
+    res.status(201).json({
+      id: user.id,
+      username: user.username,
+    });
+  } catch (error) {
+    console.error(error);
 
-  const account = {
-    id: accounts.length + 1,
-    userId: user.id,
-    amount: 0,
-  };
-
-  accounts.push(account);
-
-  res.status(201).json({
-    id: user.id,
-    username: user.username,
-  });
+    res.status(500).json({
+      message: "Kunde inte skapa användaren",
+    });
+  }
 });
 
-// Logga in
-app.post("/sessions", (req, res) => {
+app.post("/sessions", async (req, res) => {
   const { username, password } = req.body;
 
-  const user = users.find(
-    (user) => user.username === username && user.password === password,
-  );
+  const user = await prisma.user.findFirst({
+    where: {
+      username: username,
+      password: password,
+    },
+  });
 
   if (!user) {
     return res.status(401).json({
@@ -63,23 +68,26 @@ app.post("/sessions", (req, res) => {
 
   const token = generateOTP();
 
-  const session = {
-    userId: user.id,
-    token,
-  };
-
-  sessions.push(session);
+  await prisma.session.create({
+    data: {
+      userId: user.id,
+      token: token,
+    },
+  });
 
   res.json({
     token,
   });
 });
 
-// Visa saldo
-app.post("/me/accounts", (req, res) => {
+app.post("/me/accounts", async (req, res) => {
   const { token } = req.body;
 
-  const session = sessions.find((session) => session.token === token);
+  const session = await prisma.session.findUnique({
+    where: {
+      token: token,
+    },
+  });
 
   if (!session) {
     return res.status(401).json({
@@ -87,18 +95,25 @@ app.post("/me/accounts", (req, res) => {
     });
   }
 
-  const account = accounts.find((account) => account.userId === session.userId);
+  const account = await prisma.account.findUnique({
+    where: {
+      userId: session.userId,
+    },
+  });
 
   res.json({
     amount: account.amount,
   });
 });
 
-// Sätt in pengar
-app.post("/me/accounts/transactions", (req, res) => {
+app.post("/me/accounts/transactions", async (req, res) => {
   const { token, amount } = req.body;
 
-  const session = sessions.find((session) => session.token === token);
+  const session = await prisma.session.findUnique({
+    where: {
+      token: token,
+    },
+  });
 
   if (!session) {
     return res.status(401).json({
@@ -106,16 +121,22 @@ app.post("/me/accounts/transactions", (req, res) => {
     });
   }
 
-  const account = accounts.find((account) => account.userId === session.userId);
-
-  account.amount += Number(amount);
+  const account = await prisma.account.update({
+    where: {
+      userId: session.userId,
+    },
+    data: {
+      amount: {
+        increment: Number(amount),
+      },
+    },
+  });
 
   res.json({
     amount: account.amount,
   });
 });
 
-// Starta servern
 app.listen(port, () => {
   console.log(`Bankens backend körs på http://localhost:${port}`);
 });
