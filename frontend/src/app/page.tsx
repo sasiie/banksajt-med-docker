@@ -10,7 +10,7 @@ export default function Home() {
       </nav>
       <section>
         <h1> Välkommen till banken</h1>
-        <p>Skapa ett konto för att komma igång med din internetbank.</p>
+        <p>Skapa ett konto för att komma igång med din internetbank!</p>
         <Link href="/register">Skapa användare</Link>
       </section>
     </main>
