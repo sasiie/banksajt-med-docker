@@ -2,13 +2,17 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-const adapter = new PrismaBetterSqlite3({
-  url: "file:./dev.db",
+const adapter = new PrismaMariaDb({
+  host: process.env.DB_HOST || "mysql",
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER || "bank_app",
+  password: process.env.DB_PASSWORD || "bank_password",
+  database: process.env.DB_NAME || "bank",
 });
 
 const prisma = new PrismaClient({ adapter });
