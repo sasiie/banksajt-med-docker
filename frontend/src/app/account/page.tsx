@@ -60,7 +60,11 @@ export default function AccountPage() {
   }
 
   useEffect(() => {
-    fetchBalance();
+    const loadBalance = async () => {
+      await fetchBalance();
+    };
+
+    void loadBalance();
   }, []);
 
   return (
