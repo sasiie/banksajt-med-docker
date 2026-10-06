@@ -49,6 +49,10 @@ jobs:
       - name: Installera backend
         run: npm ci --prefix backend
 
+      - name: Generera Prisma Client
+        working-directory: backend
+        run: npx prisma generate
+
       - name: Installera tester
         run: npm ci --prefix tests
 
