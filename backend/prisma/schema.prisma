@@ -1,5 +1,6 @@
+
 generator client {
-   provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -15,9 +16,10 @@ model User {
 }
 
 model Account {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  amount Int  @default(0)
+  id           Int           @id @default(autoincrement())
+  userId       Int           @unique
+  amount       Int           @default(0)
+  transactions Transaction[]
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -28,4 +30,13 @@ model Session {
   token  String @unique
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  amount    Int
+  createdAt DateTime @default(now())
+  accountId Int
+
+  account Account @relation(fields: [accountId], references: [id])
 }

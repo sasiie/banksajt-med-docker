@@ -29,3 +29,16 @@ CREATE TABLE IF NOT EXISTS `Session` (
     ON DELETE RESTRICT
     ON UPDATE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS `Transaction` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `amount` INT NOT NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `accountId` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `Transaction_accountId_idx` (`accountId`),
+  CONSTRAINT `Transaction_accountId_fkey`
+    FOREIGN KEY (`accountId`) REFERENCES `Account`(`id`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+);

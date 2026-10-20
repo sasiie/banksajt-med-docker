@@ -76,6 +76,7 @@ export default function AccountPage() {
       </nav>
 
       <h1>Miitt konto</h1>
+      <p><Link href="/transactions">Visa transaktionshistorik</Link></p>
       <p> Saldo: {amount !== null ? `${amount} kr` : "Laddar..."}</p>
 
       <form onSubmit={handleDeposit}>
