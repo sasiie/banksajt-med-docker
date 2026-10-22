@@ -21,11 +21,26 @@ const prisma = new PrismaClient({ adapter });
 app.use(cors());
 app.use(bodyParser.json());
 
+app.get("/health", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    return res.status(200).json({
+      status: "ok",
+    });
+  } catch (error) {
+    console.error("Databasanslutningen misslyckades:", error);
+
+    return res.status(503).json({
+      status: "database unavailable",
+    });
+  }
+});
+
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Registrera användare
 app.post("/users", async (req, res) => {
   const { username, password } = req.body;
 

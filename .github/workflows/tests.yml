@@ -92,11 +92,9 @@ jobs:
             FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3002 || true)
 
             BACKEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-              -H "Content-Type: application/json" \
-              -d '{"token":"000000"}' \
-              http://127.0.0.1:3003/me/accounts || true)
+              http://127.0.0.1:3003/health || true)
 
-            if [ "$FRONTEND_STATUS" = "200" ] && [ "$BACKEND_STATUS" = "401" ]; then
+            if [ "$FRONTEND_STATUS" = "200" ] && [ "$BACKEND_STATUS" = "200" ]; then
               echo "Frontend och backend är redo."
               exit 0
             fi
