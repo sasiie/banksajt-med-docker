@@ -41,6 +41,7 @@ test("En användare kan logga in och sätta in pengar", async ({ page }) => {
   await page.getByLabel("Lösenord").fill(password);
   await page.getByRole("button", { name: "Logga in" }).click();
 
+  
   await expect(page).toHaveURL(/\/account$/);
   await expect(page.getByText("Saldo: 0 kr")).toBeVisible();
 
@@ -57,4 +58,8 @@ test("En användare kan logga in och sätta in pengar", async ({ page }) => {
 
   await expect(page).toHaveURL(/\/transactions$/);
   await expect(page.getByText("200 kr")).toBeVisible();
+
+  await page.reload();
+
+await expect(page.getByText("200 kr")).toBeVisible();
 });
