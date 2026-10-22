@@ -1,37 +1,21 @@
 name: Deploy Bank App
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - Tester
+    types:
+      - completed
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  frontend:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm ci
-
-      - name: Run frontend lint
-        working-directory: ./frontend
-        run: npm run lint
-
-      - name: Build frontend
-        working-directory: ./frontend
-        run: npm run build
-
   deploy:
-    needs: frontend
+    name: Deploy to AWS EC2
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +27,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
+            set -e
             cd /home/ubuntu/banksajt-med-docker
-            git pull
-            sudo docker compose down
+            git fetch origin main
+            git checkout main
+            git reset --hard ${{ github.event.workflow_run.head_sha }}
             sudo docker compose up -d --build
