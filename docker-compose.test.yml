@@ -1,0 +1,15 @@
+services:
+  nextjs:
+    build:
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:3003"
+    ports: !override
+      - "3002:3000"
+
+  express:
+    ports: !override
+      - "3003:3001"
+
+  mysql:
+    ports: !override
+      - "3308:3306"
