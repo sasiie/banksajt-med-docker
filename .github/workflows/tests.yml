@@ -27,19 +27,23 @@ jobs:
         shell: bash
         run: |
           test -f frontend/package.json || {
-            echo "::error::frontend/package.json saknas. Skapa Next.js-projektet i mappen frontend."
+            echo "::error::frontend/package.json saknas."
             exit 1
           }
           test -f frontend/package-lock.json || {
-            echo "::error::frontend/package-lock.json saknas. Projektet ska använda npm."
+            echo "::error::frontend/package-lock.json saknas."
             exit 1
           }
           test -f backend/package.json || {
-            echo "::error::backend/package.json saknas. Skapa Express-projektet i mappen backend."
+            echo "::error::backend/package.json saknas."
             exit 1
           }
           test -f backend/package-lock.json || {
-            echo "::error::backend/package-lock.json saknas. Projektet ska använda npm."
+            echo "::error::backend/package-lock.json saknas."
+            exit 1
+          }
+          test -f tests/package.json || {
+            echo "::error::tests/package.json saknas."
             exit 1
           }
 
@@ -57,17 +61,88 @@ jobs:
         working-directory: backend
         run: npm test
 
-      - name: Installera tester
+      - name: Installera befintliga Playwright-tester
         run: npm ci --prefix tests
 
       - name: Installera Chromium
         working-directory: tests
         run: npx playwright install --with-deps chromium
 
+      - name: Installera nya Playwright-tester
+        working-directory: frontend
+        run: npx playwright --version
+
       - name: Bygg frontend
         env:
-          NEXT_PUBLIC_API_URL: http://127.0.0.1:3001
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:3003
         run: npm run build --prefix frontend
 
-      - name: Kör tester
-        run: npm test --prefix tests
+      - name: Starta Docker-testmiljön
+        run: |
+          docker compose \
+            -p banksajt-e2e \
+            -f docker-compose.yml \
+            -f docker-compose.test.yml \
+            up -d --build
+
+      - name: Vänta på frontend och backend
+        shell: bash
+        run: |
+          for i in {1..60}; do
+            FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3002 || true)
+
+            BACKEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              -H "Content-Type: application/json" \
+              -d '{"token":"000000"}' \
+              http://127.0.0.1:3003/me/accounts || true)
+
+            if [ "$FRONTEND_STATUS" = "200" ] && [ "$BACKEND_STATUS" = "401" ]; then
+              echo "Frontend och backend är redo."
+              exit 0
+            fi
+
+            echo "Väntar på testmiljön... ($i/60)"
+            sleep 5
+          done
+
+          echo "::error::Testmiljön startade inte i tid."
+          docker compose \
+            -p banksajt-e2e \
+            -f docker-compose.yml \
+            -f docker-compose.test.yml \
+            logs --tail=100
+
+          exit 1
+
+      - name: Kör befintliga Playwright-tester
+        working-directory: tests
+        env:
+          FRONTEND_URL: http://127.0.0.1:3002
+          BACKEND_URL: http://127.0.0.1:3003
+          FRONTEND_PORT: 3002
+          BACKEND_PORT: 3003
+        run: |
+          npm test -- \
+            --config=playwright.config.js
+
+      - name: Kör nya Playwright-tester
+        working-directory: frontend
+        run: npx playwright test
+
+      - name: Visa Docker-loggar vid fel
+        if: failure()
+        run: |
+          docker compose \
+            -p banksajt-e2e \
+            -f docker-compose.yml \
+            -f docker-compose.test.yml \
+            logs --tail=150
+
+      - name: Stäng Docker-testmiljön
+        if: always()
+        run: |
+          docker compose \
+            -p banksajt-e2e \
+            -f docker-compose.yml \
+            -f docker-compose.test.yml \
+            down -v
