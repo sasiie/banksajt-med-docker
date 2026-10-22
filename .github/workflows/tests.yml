@@ -53,6 +53,10 @@ jobs:
         working-directory: backend
         run: npx prisma generate
 
+      - name: Kör backendtester med Vitest
+        working-directory: backend
+        run: npm test
+
       - name: Installera tester
         run: npm ci --prefix tests
 
