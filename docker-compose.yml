@@ -36,10 +36,8 @@ services:
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test:
-        [
-          "CMD-SHELL",
-          "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD} --silent",
-        ]
+        - CMD-SHELL
+        - 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysql -h 127.0.0.1 -u "$${MYSQL_USER}" "$${MYSQL_DATABASE}" -e "SELECT 1" > /dev/null 2>&1'
       interval: 5s
       timeout: 5s
       retries: 20
