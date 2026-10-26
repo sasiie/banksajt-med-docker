@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
@@ -14,6 +15,10 @@ const adapter = new PrismaMariaDb({
   user: process.env.DB_USER || "bank_app",
   password: process.env.DB_PASSWORD || "bank_password",
   database: process.env.DB_NAME || "bank",
+  ssl: {
+    ca: readFileSync(process.env.DB_SSL_CA || "/etc/mysql/tls/ca.pem", "utf8"),
+    rejectUnauthorized: true,
+  },
 });
 
 const prisma = new PrismaClient({ adapter });
