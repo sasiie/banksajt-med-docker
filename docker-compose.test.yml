@@ -7,9 +7,17 @@ services:
       - "3002:3000"
 
   express:
+    environment:
+      DB_SSL_CA: ""
+      NODE_ENV: test
+    volumes: !override []
     ports: !override
       - "3003:3001"
 
   mysql:
+    command: !override []
+    volumes: !override
+      - mysql-data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports: !override
       - "3308:3306"

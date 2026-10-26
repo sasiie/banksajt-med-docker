@@ -15,10 +15,16 @@ const adapter = new PrismaMariaDb({
   user: process.env.DB_USER || "bank_app",
   password: process.env.DB_PASSWORD || "bank_password",
   database: process.env.DB_NAME || "bank",
-  ssl: {
-    ca: readFileSync(process.env.DB_SSL_CA || "/etc/mysql/tls/ca.pem", "utf8"),
-    rejectUnauthorized: true,
-  },
+  ...(process.env.DB_SSL_CA
+    ? {
+        ssl: {
+          ca: readFileSync(process.env.DB_SSL_CA, "utf8"),
+          rejectUnauthorized: true,
+        },
+      }
+    : {
+        allowPublicKeyRetrieval: process.env.NODE_ENV === "test",
+      }),
 });
 
 const prisma = new PrismaClient({ adapter });

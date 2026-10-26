@@ -14,6 +14,7 @@ services:
       context: ./backend
     environment:
       DB_HOST: mysql
+      DB_SSL_CA: /etc/mysql/tls/ca.pem
       DB_PORT: 3306
       DB_USER: bank_app
       DB_PASSWORD: bank_password

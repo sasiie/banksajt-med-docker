@@ -3,7 +3,7 @@ name: Deploy Bank App
 on:
   workflow_run:
     workflows:
-      - Tester
+      - Build Docker Images
     types:
       - completed
     branches:
@@ -15,7 +15,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy to AWS EC2
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -32,4 +32,6 @@ jobs:
             git fetch origin main
             git checkout main
             git reset --hard ${{ github.event.workflow_run.head_sha }}
-            sudo docker compose up -d --build
+            IMAGE_TAG=${{ github.event.workflow_run.head_sha }}
+            sudo IMAGE_TAG="$IMAGE_TAG" docker compose -f docker-compose.yml -f docker-compose.prod.yml pull nextjs express
+            sudo IMAGE_TAG="$IMAGE_TAG" docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build

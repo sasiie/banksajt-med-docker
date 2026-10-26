@@ -1,0 +1,8 @@
+services:
+  nextjs:
+    image: ghcr.io/sasiie/banksajt-nextjs:${IMAGE_TAG:?IMAGE_TAG saknas}
+    build: !reset null
+
+  express:
+    image: ghcr.io/sasiie/banksajt-express:${IMAGE_TAG:?IMAGE_TAG saknas}
+    build: !reset null
